@@ -77,10 +77,10 @@ var ShutUpAndJam;
   };
 })(window.AudioContext || window.webkitAudioContext);
 
-(function(SUAJ) {
+(function() {
   'use strict';
 
-  SUAJ = function(params) {
+  ShutUpAndJam = function(params) {
     var self = this;
 
     self.context = new webkitAudioContext();
@@ -128,7 +128,7 @@ var ShutUpAndJam;
     });
   };
 
-  SUAJ.prototype.resetValues = function() {
+  ShutUpAndJam.prototype.resetValues = function() {
     this.brownGain.gain.value = 0;
     this.brownLfoGain.gain.value = 0;
 
@@ -143,7 +143,7 @@ var ShutUpAndJam;
     this.whiteLfo.frequency.value = 0;
   };
 
-  SUAJ.prototype.turnOn = function() {
+  ShutUpAndJam.prototype.turnOn = function() {
     this.brownLfo = this.context.createOscillator();
     this.pinkLfo = this.context.createOscillator();
     this.whiteLfo = this.context.createOscillator();
@@ -163,7 +163,7 @@ var ShutUpAndJam;
     this.resetValues();
   };
 
-  SUAJ.prototype.turnOff = function() {
+  ShutUpAndJam.prototype.turnOff = function() {
     this.brownLfo = null;
     this.pinkLfo = null;
     this.whiteLfo = null;
@@ -181,7 +181,7 @@ var ShutUpAndJam;
     this.whiteGain = null;
   };
 
-  SUAJ.prototype.toggleBase = function(enable) {
+  ShutUpAndJam.prototype.toggleBase = function(enable) {
     var x, y, z;
 
     if (enable) {
@@ -221,7 +221,7 @@ var ShutUpAndJam;
     if (!enable) this.turnOff();
   };
 
-  SUAJ.prototype.volumeBase = function(x, y) {
+  ShutUpAndJam.prototype.volumeBase = function(x, y) {
     var mainVol, lfoVol;
 
     mainVol = this.updateValue(x);
@@ -235,7 +235,7 @@ var ShutUpAndJam;
     return ([mainVol, lfoVol]);
   };
 
-  SUAJ.prototype.stopSound = function() {
+  ShutUpAndJam.prototype.stopSound = function() {
     if (this.currentState === 0) {
       this.startSound();
     }
@@ -243,7 +243,7 @@ var ShutUpAndJam;
     this.toggleBase(false);
   };
 
-  SUAJ.prototype.startSound = function() {
+  ShutUpAndJam.prototype.startSound = function() {
     var self = this;
 
     if (this.currentState === 1) {
@@ -259,14 +259,14 @@ var ShutUpAndJam;
     });
   };
 
-  SUAJ.prototype.updateValue = function(that, skipTransform) {
+  ShutUpAndJam.prototype.updateValue = function(that, skipTransform) {
     var value = $(that).val() || 0;
 
     if (skipTransform) return value;
     return value * 0.1;
   };
 
-  SUAJ.prototype.setQuality = function(quality) {
+  ShutUpAndJam.prototype.setQuality = function(quality) {
     var self = this;
 
     quality = parseInt(quality, 10);
@@ -280,7 +280,7 @@ var ShutUpAndJam;
     }
   };
 
-  SUAJ.prototype.setSelectors = function(selectors, init) {
+  ShutUpAndJam.prototype.setSelectors = function(selectors, init) {
     if (!init) this.removeListeners();
 
     selectors.forEach(function(x) {
@@ -292,7 +292,7 @@ var ShutUpAndJam;
     if (!init) this.setListeners();
   };
 
-  SUAJ.prototype.setListeners = function() {
+  ShutUpAndJam.prototype.setListeners = function() {
     var self = this;
 
     $(self.selectors.quality).on('change.suaj', function() {
@@ -361,10 +361,10 @@ var ShutUpAndJam;
     });
   };
 
-  SUAJ.prototype.removeListeners = function() {
+  ShutUpAndJam.prototype.removeListeners = function() {
     for (var x in this.selectors) {
       $(this.selectors[x]).off('change.suaj click.suaj');
     }
   };
-})(ShutUpAndJam);
+})();
 
