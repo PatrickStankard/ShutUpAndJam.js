@@ -1,4 +1,4 @@
-shut-up-and-jam
+ShutUpAndJam.js
 ===============
 
 Generates controllable (oscillating) white, pink, and brown noise using the HTML5 web audio API
