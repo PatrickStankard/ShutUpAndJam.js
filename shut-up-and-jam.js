@@ -1,5 +1,3 @@
-var ShutUpAndJam;
-
 /*
  * noise.js
  * white, pink, and brown noise generators for the web audio api
@@ -80,7 +78,7 @@ var ShutUpAndJam;
 (function() {
   'use strict';
 
-  ShutUpAndJam = function(params) {
+  window.ShutUpAndJam = function(params) {
     var self = this;
 
     self.context = new webkitAudioContext();
@@ -128,7 +126,7 @@ var ShutUpAndJam;
     });
   };
 
-  ShutUpAndJam.prototype.resetValues = function() {
+  window.ShutUpAndJam.prototype.resetValues = function() {
     this.brownGain.gain.value = 0;
     this.brownLfoGain.gain.value = 0;
 
@@ -143,7 +141,7 @@ var ShutUpAndJam;
     this.whiteLfo.frequency.value = 0;
   };
 
-  ShutUpAndJam.prototype.turnOn = function() {
+  window.ShutUpAndJam.prototype.turnOn = function() {
     this.brownLfo = this.context.createOscillator();
     this.pinkLfo = this.context.createOscillator();
     this.whiteLfo = this.context.createOscillator();
@@ -163,7 +161,7 @@ var ShutUpAndJam;
     this.resetValues();
   };
 
-  ShutUpAndJam.prototype.turnOff = function() {
+  window.ShutUpAndJam.prototype.turnOff = function() {
     this.brownLfo = null;
     this.pinkLfo = null;
     this.whiteLfo = null;
@@ -181,7 +179,7 @@ var ShutUpAndJam;
     this.whiteGain = null;
   };
 
-  ShutUpAndJam.prototype.toggleBase = function(enable) {
+  window.ShutUpAndJam.prototype.toggleBase = function(enable) {
     var x, y, z;
 
     if (enable) {
@@ -221,7 +219,7 @@ var ShutUpAndJam;
     if (!enable) this.turnOff();
   };
 
-  ShutUpAndJam.prototype.volumeBase = function(x, y) {
+  window.ShutUpAndJam.prototype.volumeBase = function(x, y) {
     var mainVol, lfoVol;
 
     mainVol = this.updateValue(x);
@@ -235,7 +233,7 @@ var ShutUpAndJam;
     return ([mainVol, lfoVol]);
   };
 
-  ShutUpAndJam.prototype.stopSound = function() {
+  window.ShutUpAndJam.prototype.stopSound = function() {
     if (this.currentState === 0) {
       this.startSound();
     }
@@ -243,7 +241,7 @@ var ShutUpAndJam;
     this.toggleBase(false);
   };
 
-  ShutUpAndJam.prototype.startSound = function() {
+  window.ShutUpAndJam.prototype.startSound = function() {
     var self = this;
 
     if (this.currentState === 1) {
@@ -259,14 +257,14 @@ var ShutUpAndJam;
     });
   };
 
-  ShutUpAndJam.prototype.updateValue = function(that, skipTransform) {
+  window.ShutUpAndJam.prototype.updateValue = function(that, skipTransform) {
     var value = $(that).val() || 0;
 
     if (skipTransform) return value;
     return value * 0.1;
   };
 
-  ShutUpAndJam.prototype.setQuality = function(quality) {
+  window.ShutUpAndJam.prototype.setQuality = function(quality) {
     var self = this;
 
     quality = parseInt(quality, 10);
@@ -280,7 +278,7 @@ var ShutUpAndJam;
     }
   };
 
-  ShutUpAndJam.prototype.setSelectors = function(selectors, init) {
+  window.ShutUpAndJam.prototype.setSelectors = function(selectors, init) {
     if (!init) this.removeListeners();
 
     selectors.forEach(function(x) {
@@ -292,7 +290,7 @@ var ShutUpAndJam;
     if (!init) this.setListeners();
   };
 
-  ShutUpAndJam.prototype.setListeners = function() {
+  window.ShutUpAndJam.prototype.setListeners = function() {
     var self = this;
 
     $(self.selectors.quality).on('change.suaj', function() {
@@ -361,7 +359,7 @@ var ShutUpAndJam;
     });
   };
 
-  ShutUpAndJam.prototype.removeListeners = function() {
+  window.ShutUpAndJam.prototype.removeListeners = function() {
     for (var x in this.selectors) {
       $(this.selectors[x]).off('change.suaj click.suaj');
     }
