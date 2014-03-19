@@ -16,6 +16,7 @@
 
     node.onaudioprocess = function(e) {
       var output = e.outputBuffer.getChannelData(0);
+
       for (var i = 0; i < bufferSize; i++) {
         output[i] = Math.random() * 2 - 1;
       }
@@ -75,15 +76,13 @@
   };
 })(window.AudioContext || window.webkitAudioContext);
 
-(function() {
+(function(window, document, $, undefined) {
   'use strict';
 
   window.ShutUpAndJam = function(params) {
-    var self = this;
+    this.context = new webkitAudioContext();
 
-    self.context = new webkitAudioContext();
-
-    self.quality = {
+    this.quality = {
       setting: 2048,
       options: [
         256,
@@ -96,34 +95,44 @@
       ]
     };
 
-    self.lfoKey = {
+    this.lfoKey = {
       white: false,
       pink: false,
       brown: false
     };
 
-    self.selectors = {
-      sliders: 'INPUT.jam-slider',
-      quality: '#jam-quality',
-      whiteVolume: '#jam-white-volume',
-      pinkVolume: '#jam-pink-volume',
-      brownVolume: '#jam-brown-volume',
-      whiteLfoRate: '#jam-white-lfo-rate',
-      pinkLfoRate: '#jam-pink-lfo-rate',
-      brownLfoRate: '#jam-brown-lfo-rate',
-      start: '#jam-start',
-      stop: '#jam-stop'
+    this.selectors = {
+      sliders: 'input.jam-slider',
+      quality: 'input#jam-quality',
+      whiteVolume: 'input#jam-white-volume',
+      pinkVolume: 'input#jam-pink-volume',
+      brownVolume: 'input#jam-brown-volume',
+      whiteLfoRate: 'input#jam-white-lfo-rate',
+      pinkLfoRate: 'input#jam-pink-lfo-rate',
+      brownLfoRate: 'input#jam-brown-lfo-rate',
+      start: 'input#jam-start',
+      stop: 'input#jam-stop'
     };
 
-    if (params) {
-      if (params.selectors) self.setSelectors(params.selectors, true);
-      if (params.quality) self.setQuality(params.quality);
+    if (typeof params === 'object') {
+      if (typeof params.selectors === 'object') {
+        this.setSelectors(params.selectors, true);
+      }
+
+      if (typeof params.quality === 'object') {
+        this.setQuality(params.quality);
+      }
     }
 
     $(function() {
-      self.setListeners();
-      if (params && params.autoStart) self.startSound();
-    });
+      this.setListeners();
+
+      if (typeof params === 'object') {
+        if (params.autoStart === true) {
+          this.startSound();
+        }
+      }
+    }.bind(this));
   };
 
   window.ShutUpAndJam.prototype.resetValues = function() {
@@ -182,16 +191,18 @@
   window.ShutUpAndJam.prototype.toggleBase = function(enable) {
     var x, y, z;
 
-    if (enable) {
+    if (enable === true) {
       this.turnOn();
 
       x = 'connect';
       y = 'start';
       z = 1;
-    } else {
+    } else if (enable === false) {
       x = 'disconnect';
       y = 'stop';
       z = 0;
+    } else {
+      return;
     }
 
     this.brownLfoGain[x](this.brownGain.gain);
@@ -216,7 +227,9 @@
 
     this.currentState = z;
 
-    if (!enable) this.turnOff();
+    if (enable === false) {
+      this.turnOff();
+    }
   };
 
   window.ShutUpAndJam.prototype.volumeBase = function(x, y) {
@@ -225,7 +238,7 @@
     mainVol = this.updateValue(x);
     lfoVol = 0;
 
-    if (this.lfoKey[y]) {
+    if (typeof this.lfoKey[y] !== 'undefined') {
       mainVol = (mainVol / 2);
       lfoVol = mainVol;
     }
@@ -242,121 +255,122 @@
   };
 
   window.ShutUpAndJam.prototype.startSound = function() {
-    var self = this;
-
     if (this.currentState === 1) {
       this.stopSound();
     }
 
     this.toggleBase(true);
 
-    $(this.selectors.sliders).each(function() {
-      if ($(this).attr('id') !== self.selectors.quality) {
-        $(this).trigger('change');
+    $(this.selectors.sliders).each(function(i, el) {
+      if ($(el).attr('id') !== this.selectors.quality) {
+        $(el).trigger('change');
       }
-    });
+    }.bind(this));
   };
 
   window.ShutUpAndJam.prototype.updateValue = function(that, skipTransform) {
     var value = $(that).val() || 0;
 
-    if (skipTransform) return value;
+    if (skipTransform === true) {
+      return value;
+    }
+
     return value * 0.1;
   };
 
   window.ShutUpAndJam.prototype.setQuality = function(quality) {
-    var self = this;
-
     quality = parseInt(quality, 10);
 
-    if (quality && !isNaN(quality)) {
-      self.quality.options.forEach(function(valid) {
+    if (isNaN(quality) === false && quality !== 0) {
+      this.quality.options.forEach(function(valid) {
         if (quality === valid) {
-          self.quality.setting = quality;
+          this.quality.setting = quality;
         }
-      });
+      }.bind(this));
     }
   };
 
   window.ShutUpAndJam.prototype.setSelectors = function(selectors, init) {
-    if (!init) this.removeListeners();
+    if (init !== true) {
+      this.removeListeners();
+    }
 
     selectors.forEach(function(x) {
-      if (this.selectors[x]) {
+      if (typeof this.selectors[x] !== 'undefined') {
         this.selectors[x] = selectors[x];
       }
-    });
+    }.bind(this));
 
-    if (!init) this.setListeners();
+    if (init !== true) {
+      this.setListeners();
+    }
   };
 
   window.ShutUpAndJam.prototype.setListeners = function() {
-    var self = this;
+    $(this.selectors.quality).on('change.suaj', function(e) {
+      var quality = this.updateValue(e.currentTarget, true);
 
-    $(self.selectors.quality).on('change.suaj', function() {
-      var quality = self.updateValue(this, true);
+      quality = this.quality.options[quality];
 
-      quality = self.quality.options[quality];
+      this.setQuality(quality);
+      this.startSound();
+    }.bind(this));
 
-      self.setQuality(quality);
-      self.startSound();
-    });
+    $(this.selectors.whiteVolume).on('change.suaj', function(e) {
+      var vol = this.volumeBase(e.currentTarget, 'white');
 
-    $(self.selectors.whiteVolume).on('change.suaj', function() {
-      var vol = self.volumeBase(this, 'white');
+      this.whiteGain.gain.value = vol[0];
+      this.whiteLfoGain.gain.value = vol[1];
+    }.bind(this));
 
-      self.whiteGain.gain.value = vol[0];
-      self.whiteLfoGain.gain.value = vol[1];
-    });
+    $(this.selectors.pinkVolume).on('change.suaj', function(e) {
+      var vol = this.volumeBase(e.currentTarget, 'pink');
 
-    $(self.selectors.pinkVolume).on('change.suaj', function() {
-      var vol = self.volumeBase(this, 'pink');
+      this.pinkGain.gain.value = vol[0];
+      this.pinkLfoGain.gain.value = vol[1];
+    }.bind(this));
 
-      self.pinkGain.gain.value = vol[0];
-      self.pinkLfoGain.gain.value = vol[1];
-    });
+    $(this.selectors.brownVolume).on('change.suaj', function(e) {
+      var vol = this.volumeBase(e.currentTarget, 'brown');
 
-    $(self.selectors.brownVolume).on('change.suaj', function() {
-      var vol = self.volumeBase(this, 'brown');
+      this.brownGain.gain.value = vol[0];
+      this.brownLfoGain.gain.value = vol[1];
+    }.bind(this));
 
-      self.brownGain.gain.value = vol[0];
-      self.brownLfoGain.gain.value = vol[1];
-    });
+    $(this.selectors.whiteLfoRate).on('change.suaj', function(e) {
+      var rate = this.updateValue(e.currentTarget);
 
-    $(self.selectors.whiteLfoRate).on('change.suaj', function() {
-      var rate = self.updateValue(this);
+      this.whiteLfo.frequency.value = rate;
+      this.lfoKey.white = (rate !== 0);
 
-      self.whiteLfo.frequency.value = rate;
-      self.lfoKey.white = (rate !== 0);
+      $(this.selectors.whiteVolume).trigger('change.suaj');
+    }.bind(this));
 
-      $(self.selectors.whiteVolume).trigger('change.suaj');
-    });
+    $(this.selectors.pinkLfoRate).on('change.suaj', function(e) {
+      var rate = this.updateValue(e.currentTarget);
 
-    $(self.selectors.pinkLfoRate).on('change.suaj', function() {
-      var rate = self.updateValue(this);
+      this.pinkLfo.frequency.value = rate;
+      this.lfoKey.pink = (rate !== 0);
 
-      self.pinkLfo.frequency.value = rate;
-      self.lfoKey.pink = (rate !== 0);
+      $(this.selectors.pinkVolume).trigger('change.suaj');
+    }.bind(this));
 
-      $(self.selectors.pinkVolume).trigger('change.suaj');
-    });
+    $(this.selectors.brownLfoRate).on('change.suaj', function(e) {
+      var rate = this.updateValue(e.currentTarget);
 
-    $(self.selectors.brownLfoRate).on('change.suaj', function() {
-      var rate = self.updateValue(this);
+      this.brownLfo.frequency.value = this.updateValue(e.currentTarget);
+      this.lfoKey.brown = (rate !== 0);
 
-      self.brownLfo.frequency.value = self.updateValue(this);
-      self.lfoKey.brown = (rate !== 0);
+      $(this.selectors.brownVolume).trigger('change.suaj');
+    }.bind(this));
 
-      $(self.selectors.brownVolume).trigger('change.suaj');
-    });
+    $(this.selectors.start).on('click.suaj', function() {
+      this.startSound();
+    }.bind(this));
 
-    $(self.selectors.start).on('click.suaj', function() {
-      self.startSound();
-    });
-
-    $(self.selectors.stop).on('click.suaj', function() {
-      self.stopSound();
-    });
+    $(this.selectors.stop).on('click.suaj', function() {
+      this.stopSound();
+    }.bind(this));
   };
 
   window.ShutUpAndJam.prototype.removeListeners = function() {
@@ -364,5 +378,5 @@
       $(this.selectors[x]).off('change.suaj click.suaj');
     }
   };
-})();
+})(window, document, jQuery);
 
