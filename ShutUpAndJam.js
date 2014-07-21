@@ -159,13 +159,13 @@
     this.pinkNoise = this.context.createPinkNoise(this.quality.setting);
     this.whiteNoise = this.context.createWhiteNoise(this.quality.setting);
 
-    this.brownLfoGain = this.context.createGainNode();
-    this.pinkLfoGain = this.context.createGainNode();
-    this.whiteLfoGain = this.context.createGainNode();
+    this.brownLfoGain = this.context.createGain();
+    this.pinkLfoGain = this.context.createGain();
+    this.whiteLfoGain = this.context.createGain();
 
-    this.brownGain = this.context.createGainNode();
-    this.pinkGain = this.context.createGainNode();
-    this.whiteGain = this.context.createGainNode();
+    this.brownGain = this.context.createGain();
+    this.pinkGain = this.context.createGain();
+    this.whiteGain = this.context.createGain();
 
     this.resetValues();
   };
