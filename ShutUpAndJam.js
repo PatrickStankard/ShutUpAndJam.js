@@ -80,7 +80,8 @@
   'use strict';
 
   window.ShutUpAndJam = function(params) {
-    this.context = new webkitAudioContext();
+    this.contextConstructor = window.AudioContext || window.webkitAudioContext;
+    this.context = new this.contextConstructor();
 
     this.quality = {
       setting: 2048,
